@@ -20,6 +20,10 @@ from sklearn.model_selection import train_test_split
 
 from asi_project.config import DatasetContract, ProjectConfig
 
+PURPOSE_COL_NAME = "Purpose"
+
+CREDIT_SCORE_COL_NAME = "Credit Score"
+
 DATA_MODES = ("full", "sample")
 
 
@@ -184,13 +188,18 @@ def normalize_input(df: pd.DataFrame) -> pd.DataFrame:
 
     Domyślnie przycina białe znaki w wartościach tekstowych i zamienia puste napisy na brak.
 
-    TODO (S1): po EDA dopisz reguły dla swojego datasetu, np. oczywiste reprezentacje braków
+    WIP (S1): po EDA dopisz reguły dla swojego datasetu, np. oczywiste reprezentacje braków
     albo konwersję typów. Każdą regułę uzasadnij w notebooku 01.
     """
     normalized = df.copy()
     for column in normalized.columns:
         if is_text_column(normalized[column]):
             normalized[column] = normalized[column].map(_strip_text)
+    if PURPOSE_COL_NAME in normalized.columns:
+        normalized[PURPOSE_COL_NAME] = normalized[PURPOSE_COL_NAME].replace({"other": "Other"})
+    if CREDIT_SCORE_COL_NAME in normalized.columns:
+        score = normalized[CREDIT_SCORE_COL_NAME]
+        normalized[CREDIT_SCORE_COL_NAME] = score.where(score < 1000, score / 10)
     return normalized
 
 
