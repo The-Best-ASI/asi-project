@@ -140,3 +140,38 @@ online_shoppers:
     "PageValues": >-
       Excluded by course policy because availability at the intended prediction moment is
       ambiguous.
+
+bank_loan_status:
+  title: Bank Loan Status
+  source_url: https://www.kaggle.com/datasets/zaurbegiev/my-dataset
+  doi: ""
+  license: Unknown (Kaggle)
+  download:
+    url: https://www.kaggle.com/api/v1/datasets/download/zaurbegiev/my-dataset
+    member: credit_train.csv
+  target: "Loan Status"
+  positive_class: "Charged Off"
+  prediction_moment: >
+    Predykcja w chwili rozpatrywania wniosku kredytowego, na podstawie parametrów kredytu
+    i historii kredytowej klienta, zanim wiadomo, czy kredyt zostanie spłacony.
+  split: stratified_random
+  allowed_features:
+    - "Current Loan Amount"
+    - "Term"
+    - "Credit Score"
+    - "Annual Income"
+    - "Years in current job"
+    - "Home Ownership"
+    - "Purpose"
+    - "Monthly Debt"
+    - "Years of Credit History"
+    - "Months since last delinquent"
+    - "Number of Open Accounts"
+    - "Number of Credit Problems"
+    - "Current Credit Balance"
+    - "Maximum Open Credit"
+    - "Bankruptcies"
+    - "Tax Liens"
+  excluded_features:
+    "Loan ID": "identyfikator kredytu (potrzebny tylko do deduplikacji rekordów)"
+    "Customer ID": "identyfikator klienta"
