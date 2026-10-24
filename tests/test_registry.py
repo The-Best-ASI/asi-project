@@ -4,7 +4,7 @@ from asi_project.config import SPLIT_STRATEGIES
 
 
 def test_registry_lists_approved_datasets(registry):
-    assert 3 <= len(registry) <= 4, "Lista dla studentów ma 3–4 datasety."
+    assert 3 <= len(registry) <= 5, "Lista dla studentów ma 3–5 datasetów."
 
 
 def test_every_contract_is_internally_consistent(registry):
@@ -19,9 +19,13 @@ def test_every_contract_is_internally_consistent(registry):
         assert contract.split_strategy in SPLIT_STRATEGIES
         assert contract.prediction_moment, f"{dataset_id}: brak momentu predykcji"
         assert all(reason.strip() for reason in contract.excluded_features.values())
-        assert contract.download_url.startswith("https://archive.ics.uci.edu/")
-        assert contract.doi.startswith("https://doi.org/")
-        assert contract.license == "CC BY 4.0"
+        if contract.download_url.startswith("https://archive.ics.uci.edu/"):
+            assert contract.doi.startswith("https://doi.org/")
+            assert contract.license == "CC BY 4.0"
+        else:
+            # Źródła spoza UCI (np. Kaggle) dodane za zgodą prowadzącej.
+            assert contract.source_url.startswith("https://"), f"{dataset_id}: brak źródła"
+            assert contract.license.strip(), f"{dataset_id}: brak licencji"
 
 
 def test_docs_describe_every_dataset_and_column(registry, repo_root):

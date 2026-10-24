@@ -17,8 +17,9 @@ spójne — pilnuje tego test `tests/test_registry.py`. Zespół nie edytuje ża
   (wymieniona w EXCLUDED FEATURES albo nieopisana w ogóle) jest niedozwolona. Pilnuje tego
   funkcja `make_xy` i testy w `tests/test_project.py`.
 - Klasa pozytywna jest kodowana jako `1`. Metryki precision, recall i F1 liczymy dla niej.
-- Wszystkie datasety są na licencji CC BY 4.0: w karcie projektu (README) podajcie źródło
-  i cytowanie (DOI).
+- Datasety z UCI są na licencji CC BY 4.0: w karcie projektu (README) podajcie źródło
+  i cytowanie (DOI). Wyjątek: `bank_loan_status` (Kaggle, licencja „Unknown”, bez DOI) —
+  w karcie projektu podajcie źródło i autora zbioru.
 
 ## Przegląd
 
@@ -28,6 +29,7 @@ spójne — pilnuje tego test `tests/test_registry.py`. Zespół nie edytuje ża
 | `bank_marketing` | Bank Marketing (`bank-full`) | marketing usług | 45 211 | `y` (`yes`) | 11,7% | `time_ordered` |
 | `iranian_churn` | Iranian Churn | klient / usługa | 3 150 | `Churn` (`1`) | 495 / 3150 = 15,71% | `stratified_random` |
 | `online_shoppers` | Online Shoppers Purchasing Intention | e-commerce | 12 330 | `Revenue` (`true`) | 15,5% | `stratified_random` |
+| `bank_loan_status` | Bank Loan Status | kredyty konsumenckie | 100 000 | `Loan Status` (`Charged Off`) | 22,6% | `stratified_random` |
 
 Dane pobiera skrypt `python scripts/download_data.py`. Zapisuje on plik do `data/01_raw/<id>/`
 (poza gitem) razem z `fingerprint.json` (SHA-256 pliku) i wypisuje rozkład klas.
@@ -279,6 +281,74 @@ odwiedzonych przed transakcją, ale nie mówi, czy obejmuje transakcję z bież�
 
 ---
 
+## `bank_loan_status` — Bank Loan Status
+
+Dataset dodany za zgodą prowadzącej, mimo że pochodzi z Kaggle i dotyczy decyzji kredytowych
+(zob. „Odrzucone po weryfikacji”). W EDA i karcie modelu opiszcie ryzyka etyczne takiego modelu.
+
+- **Problem:** czy kredyt konsumencki nie zostanie spłacony (`Charged Off`).
+- **Źródło:** Kaggle, „Bank Loan Status Dataset” (autor: Zaur Begiev, wersja 1 z 2017 r.),
+  https://www.kaggle.com/datasets/zaurbegiev/my-dataset. Brak DOI i opisu pochodzenia danych.
+- **Licencja:** „Unknown” (tak podaje Kaggle).
+- **Pobieranie:** archiwum
+  https://www.kaggle.com/api/v1/datasets/download/zaurbegiev/my-dataset (bez tokenu),
+  plik `credit_train.csv` (ok. 18 MB). Bez sieci:
+  `python scripts/download_data.py --url file:///<ścieżka>/my-dataset.zip`.
+  Plik `credit_test.csv` z archiwum nie ma targetu i nie jest używany (split robi repozytorium).
+- **Target:** `Loan Status`. **Klasa pozytywna:** `Charged Off` (kredyt niespłacony).
+- **Moment predykcji:** predykcja w chwili rozpatrywania wniosku kredytowego, na podstawie
+  parametrów kredytu i historii kredytowej klienta, zanim wiadomo, czy kredyt zostanie spłacony.
+- **Udział klasy pozytywnej:** 22 639 na 100 000 rekordów z targetem (22,6%).
+
+ALLOWED FEATURES:
+
+| Kolumna | Typ wejścia | Uwagi |
+|---|---|---|
+| `Current Loan Amount` | liczba | kwota kredytu; wartość `99999999` to znacznik braku (zob. niżej) |
+| `Term` | kategoryczna | `Short Term` / `Long Term` |
+| `Credit Score` | liczba | skala 300–850; część wartości zapisana ×10 (zob. niżej) |
+| `Annual Income` | liczba | brak w tych samych rekordach co `Credit Score` |
+| `Years in current job` | kategoryczna (porządkowa) | tekst od `< 1 year` do `10+ years` |
+| `Home Ownership` | kategoryczna | `HaveMortgage` i `Home Mortgage` to prawdopodobnie ta sama kategoria |
+| `Purpose` | kategoryczna | 16 wartości, m.in. `other` i `Other` |
+| `Monthly Debt` | liczba | miesięczne zadłużenie |
+| `Years of Credit History` | liczba | długość historii kredytowej w latach |
+| `Months since last delinquent` | liczba | ok. 53% braków (brak opóźnień w historii?) |
+| `Number of Open Accounts` | liczba całkowita | |
+| `Number of Credit Problems` | liczba całkowita | |
+| `Current Credit Balance` | liczba | |
+| `Maximum Open Credit` | liczba | |
+| `Bankruptcies` | liczba całkowita | |
+| `Tax Liens` | liczba całkowita | |
+
+EXCLUDED FEATURES:
+
+| Kolumna | Powód |
+|---|---|
+| `Loan ID` | identyfikator kredytu (potrzebny tylko do deduplikacji rekordów) |
+| `Customer ID` | identyfikator klienta |
+
+**Znane problemy danych (do obsłużenia po EDA):**
+
+- 514 całkowicie pustych wierszy na końcu pliku (100 514 wierszy w pliku, 100 000 z targetem);
+  usuwa je domyślny `filter_training_rows` (brak targetu).
+- 10 215 dokładnych duplikatów wierszy. Po ich usunięciu 7 786 `Loan ID` nadal występuje
+  dwukrotnie; takie pary różnią się tylko `Current Loan Amount` (w 3 579 parach jedna kwota to
+  `99999999`). Bez deduplikacji ten sam kredyt trafi do treningu i testu.
+- `Current Loan Amount` = `99999999` w 11 484 rekordach — **wszystkie `Fully Paid`**.
+- `Credit Score` > 850 (np. 7290 zamiast 729) w 4 551 rekordach — **wszystkie `Charged Off`**.
+- Oba artefakty występują też w `credit_test.csv` (1 133 i 453 rekordy), więc pochodzą
+  z danych wejściowych. Pozostawione bez obsługi zdradzają target (leakage przez artefakt).
+- `Credit Score` i `Annual Income` są puste razem w 19 154 rekordach; `Years in current job`
+  ma 4 222 braki.
+
+**Ryzyka splitu / leakage:**
+
+- Kolejność rekordów nie niesie informacji o czasie (udział `Charged Off` 22–23% w każdym
+  decylu pliku), dlatego split `stratified_random` — pod warunkiem deduplikacji po `Loan ID`.
+
+---
+
 ## Rezerwowe (nie są na liście dla studentów)
 
 - **In-Vehicle Coupon Recommendation** (UCI, id 603, CC BY 4.0) — powtarzane obserwacje tych
@@ -303,5 +373,6 @@ odwiedzonych przed transakcją, ale nie mówi, czy obejmuje transakcję z bież�
 - **Airlines** (OpenML, id 1169) — licencja opisana tylko jako „publicly available”,
   nieudokumentowana definicja targetu i słaby sygnał.
 - Odrzucone z założenia (ryzyko etyczne): Adult (dochód z cech demograficznych),
-  Default of Credit Card Clients (decyzje kredytowe), zbiory Heart Disease (diagnozowanie
-  chorób), Predict Students' Dropout (decyzje o studentach).
+  Default of Credit Card Clients (decyzje kredytowe; wyjątek: `bank_loan_status` dodany za
+  zgodą prowadzącej), zbiory Heart Disease (diagnozowanie chorób), Predict Students' Dropout
+  (decyzje o studentach).
