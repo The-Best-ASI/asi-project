@@ -27,6 +27,8 @@ CREDIT_SCORE_COL_NAME = "Credit Score"
 HOME_OWNERSHIP_COL_NAME = "Home Ownership"
 CURRENT_LOAN_AMOUNT_COL_NAME = "Current Loan Amount"
 
+LOAN_ID_COLUMN = "Loan ID"
+
 DATA_MODES = ("full", "sample")
 
 
@@ -231,8 +233,8 @@ def filter_training_rows(df: pd.DataFrame, contract: DatasetContract) -> pd.Data
     keep = df[contract.target].map(label_text).notna() & ~df.duplicated()
     filtered_df = df.loc[keep].copy()
 
-    if "Loan ID" in filtered_df.columns:
-        filtered_df = filtered_df.drop_duplicates(subset=["Loan ID"], keep="first")
+    if LOAN_ID_COLUMN in filtered_df.columns:
+        filtered_df = filtered_df.drop_duplicates(subset=[LOAN_ID_COLUMN], keep="first")
 
     return filtered_df
 
