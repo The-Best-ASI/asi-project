@@ -234,7 +234,7 @@ def filter_training_rows(df: pd.DataFrame, contract: DatasetContract) -> pd.Data
     if "Loan ID" in filtered_df.columns:
         filtered_df = filtered_df.drop_duplicates(subset=["Loan ID"], keep="first")
 
-    return df.loc[keep].copy()
+    return filtered_df
 
 
 # --- X / y i split -----------------------------------------------------------------------------
