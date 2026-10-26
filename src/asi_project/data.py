@@ -24,6 +24,9 @@ PURPOSE_COL_NAME = "Purpose"
 
 CREDIT_SCORE_COL_NAME = "Credit Score"
 
+HOME_OWNERSHIP_COL_NAME = "Home Ownership"
+CURRENT_LOAN_AMOUNT_COL_NAME = "Current Loan Amount"
+
 DATA_MODES = ("full", "sample")
 
 
@@ -195,11 +198,24 @@ def normalize_input(df: pd.DataFrame) -> pd.DataFrame:
     for column in normalized.columns:
         if is_text_column(normalized[column]):
             normalized[column] = normalized[column].map(_strip_text)
+
     if PURPOSE_COL_NAME in normalized.columns:
         normalized[PURPOSE_COL_NAME] = normalized[PURPOSE_COL_NAME].replace({"other": "Other"})
+
     if CREDIT_SCORE_COL_NAME in normalized.columns:
         score = normalized[CREDIT_SCORE_COL_NAME]
         normalized[CREDIT_SCORE_COL_NAME] = score.where(score < 1000, score / 10)
+
+    if HOME_OWNERSHIP_COL_NAME in normalized.columns:
+        normalized[HOME_OWNERSHIP_COL_NAME] = normalized[HOME_OWNERSHIP_COL_NAME].replace(
+            {"HaveMortgage": "Home Mortgage"}
+        )
+
+    if CURRENT_LOAN_AMOUNT_COL_NAME in normalized.columns:
+        normalized[CURRENT_LOAN_AMOUNT_COL_NAME] = normalized[CURRENT_LOAN_AMOUNT_COL_NAME].replace(
+            {99999999: np.nan, 99999999.0: np.nan}
+        )
+
     return normalized
 
 
@@ -213,6 +229,11 @@ def filter_training_rows(df: pd.DataFrame, contract: DatasetContract) -> pd.Data
     Decyzję i jej powód zapisz w notebooku 01.
     """
     keep = df[contract.target].map(label_text).notna() & ~df.duplicated()
+    filtered_df = df.loc[keep].copy()
+
+    if "Loan ID" in filtered_df.columns:
+        filtered_df = filtered_df.drop_duplicates(subset=["Loan ID"], keep="first")
+
     return df.loc[keep].copy()
 
 
