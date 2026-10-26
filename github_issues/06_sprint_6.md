@@ -1,20 +1,66 @@
-# Sprint 6 — Wdrożenie, obserwowalność i release
+# Sprint 6 — Wdrożenie do Cloud Run, obserwowalność i release
 
 > Treść generowana z `docs/sprints/SPRINT_6.md` przez `python scripts/build_issues.py`. Zmiany wprowadzaj w pliku sprintu.
 
-**Daty:** 07.01.2027 – 21.01.2027 · **Spotkania:** 07.01 (start sprintu), 14.01 (pełne — release candidate), 21.01 (finał) · **Deadline:** release candidate 14.01.2027 (wewnętrzny, twardy), finał i release v1.0 21.01.2027
+**Daty:** 07.01.2027 – 21.01.2027
 
 ## Cel
 
-API i UI działają publicznie w Cloud Run, z tokenem dostępu z Secret Managera, jawnym trybem
-persistence, logami i smoke testem. Projekt jest wydany jako v1.0.
+Macie już lokalny system z:
+
+```text
+Streamlit UI
+    ↓
+FastAPI
+    ↓
+PostgreSQL
+```
+
+W ostatnim sprincie wdrożycie API i UI do **Google Cloud Run**.
+
+Na koniec kursu:
+
+- API działa pod publicznym adresem;
+- UI działa pod publicznym adresem;
+- `API_KEY` jest pobierany z Secret Managera;
+- aplikacja działa z jawnym trybem persistence;
+- logi są widoczne w Cloud Logging;
+- smoke test przechodzi na wdrożonych usługach;
+- dokumentacja jest aktualna;
+- projekt ma release `v1.0`;
+- zespół potrafi zademonstrować cały system.
 
 ## Definition of Done
 
-- [ ] 14.01 (release candidate): API i UI wdrożone; smoke zielony w trybie skonfigurowanym dla chmury — w trybie `disabled` predykcja działa i ma poprawny kontrakt bez zapisu stanu, a w trybie `sql` (przy OPTIONAL bazie w chmurze) rekord jest zapisany.
-- [ ] Działanie UI na Cloud Run potwierdzone tym samym manualnym UI checkiem co w Sprincie 5 (podczas release candidate i demo).
-- [ ] 21.01: finalny smoke, dokumentacja, release v1.0, demo.
-- [ ] `API_KEY` nie jest hardcodowany, nie trafia do repozytorium i nie jest wpisywany ręcznie jako jawna konfiguracja; usługi otrzymują go przez integrację z Secret Managerem.
+### release candidate — 14.01
+
+- [ ] API jest wdrożone do Cloud Run.
+- [ ] UI jest wdrożone do Cloud Run.
+- [ ] Obrazy są zgodne z `linux/amd64`.
+- [ ] API korzysta z `$PORT`.
+- [ ] `API_KEY` znajduje się w Secret Managerze.
+- [ ] API otrzymuje `API_KEY` przez integrację z Secret Managerem.
+- [ ] UI otrzymuje `API_KEY` przez integrację z Secret Managerem.
+- [ ] Persistence w chmurze jest ustawione jawnie.
+- [ ] Przy braku zewnętrznej bazy działa `persistence = disabled`.
+- [ ] SQLite w Cloud Run jest zablokowany.
+- [ ] `/healthz` działa.
+- [ ] Smoke test na publicznym URL API przechodzi.
+- [ ] Manualny UI check przechodzi.
+- [ ] Logi predykcji są widoczne w Cloud Logging.
+
+### finał — 21.01
+
+- [ ] Finalny smoke test przechodzi.
+- [ ] Finalny manualny UI check przechodzi.
+- [ ] README jest aktualne.
+- [ ] Model Card jest aktualna.
+- [ ] ADR-3 jest finalny.
+- [ ] `deploy.sh` odpowiada rzeczywistemu deploymentowi.
+- [ ] W repozytorium nie ma sekretów.
+- [ ] Release notes są przygotowane.
+- [ ] Release `v1.0` jest utworzony.
+- [ ] Zespół jest gotowy do demo.
 
 ## Podział pracy (uzupełnia zespół na początku sprintu)
 

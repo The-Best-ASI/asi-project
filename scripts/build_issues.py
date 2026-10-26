@@ -17,6 +17,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SPRINTS = range(1, 7)
+GOAL_HEADING = "Co zrobicie w tym sprincie"
+DOD_HEADING_PREFIX = "Co musi być gotowe na "
+
+
+def headings_with_prefix(lines: list[str], prefix: str) -> list[str]:
+    """Nagłówki ``## prefix...`` (bez ``## ``) w kolejności występowania."""
+    found = [line[3:] for line in lines if line.startswith(f"## {prefix}")]
+    if not found:
+        raise ValueError(f"Brak sekcji '## {prefix}...'")
+    return found
 
 
 def section(lines: list[str], heading: str) -> list[str]:
@@ -44,9 +54,16 @@ def render_issue(number: int, sprint_text: str) -> str:
     lines = sprint_text.splitlines()
     title = lines[0].removeprefix("# ").strip()
     dates = next(line for line in lines if line.startswith("**Daty:**"))
-    goal = [line for line in section(lines, "Cel") if line.strip()]
-    dod = bullet_items(section(lines, "Definition of Done"))
-    checklist = [f"- [ ] {item}" for item in dod]
+    goal = "\n".join(line for line in section(lines, GOAL_HEADING) if line != "---").strip()
+    dod_headings = headings_with_prefix(lines, DOD_HEADING_PREFIX)
+    checklist: list[str] = []
+    for heading in dod_headings:
+        # Sprint 6 ma kilka sekcji DoD (np. release candidate i finał) — każda jako podsekcja.
+        if len(dod_headings) > 1:
+            checklist += [f"### {heading.removeprefix(DOD_HEADING_PREFIX)}", ""]
+        dod = bullet_items(section(lines, heading))
+        checklist += [f"- [ ] {item.removeprefix('[ ] ')}" for item in dod]
+        checklist.append("")
     body = [
         f"# {title}",
         "",
@@ -57,12 +74,11 @@ def render_issue(number: int, sprint_text: str) -> str:
         "",
         "## Cel",
         "",
-        *goal,
+        goal,
         "",
         "## Definition of Done",
         "",
         *checklist,
-        "",
         "## Podział pracy (uzupełnia zespół na początku sprintu)",
         "",
         "| Element sprintu | Owner | Recenzent |",

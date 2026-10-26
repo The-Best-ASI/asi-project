@@ -2,12 +2,28 @@
 # Kontrakt datasetów prowadzącej jest w src/asi_project/datasets.yaml — tamtego pliku nie edytujemy.
 
 # TODO (S1): id datasetu z docs/datasets.md, np. ai4i_2020.
-dataset: null
+dataset: bank_loan_status
 
-# TODO (S1): typy cech po EDA. Wyłącznie kolumny z ALLOWED FEATURES wybranego datasetu.
+# DONE (S1): typy cech po EDA. Wyłącznie kolumny z ALLOWED FEATURES wybranego datasetu.
 features:
-  numeric: []
-  categorical: []
+  numeric:
+    - Current Loan Amount
+    - Credit Score
+    - Annual Income
+    - Monthly Debt
+    - Years of Credit History
+    - Months since last delinquent
+    - Number of Open Accounts
+    - Number of Credit Problems
+    - Current Credit Balance
+    - Maximum Open Credit
+    - Bankruptcies
+    - Tax Liens
+  categorical:
+    - Term
+    - Years in current job
+    - Home Ownership
+    - Purpose
 
 split:
   test_size: 0.2
