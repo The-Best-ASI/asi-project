@@ -58,7 +58,12 @@ def build_baseline_pipeline(
     model = Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            ("classifier", LogisticRegression(random_state=42, max_iter=1000, solver="liblinear", class_weight="balanced" )),
+            (
+                "classifier",
+                LogisticRegression(
+                    random_state=42, max_iter=1000, solver="liblinear", class_weight="balanced"
+                ),
+            ),
         ]
     )
 
