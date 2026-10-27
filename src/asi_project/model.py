@@ -26,7 +26,6 @@ def build_baseline_pipeline(
 ) -> Pipeline:
     """TODO (S1): Pipeline = model preprocessing (ColumnTransformer) + LogisticRegression.
 
-
     Wymagania (sprawdzane w tests/test_project.py):
     - Pipeline przyjmuje DataFrame z kolumnami ``numeric_features + categorical_features``,
     - cały model preprocessing jest wewnątrz Pipeline (bez wcześniejszego kodowania ręcznie),
@@ -59,7 +58,7 @@ def build_baseline_pipeline(
     model = Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            ("classifier", LogisticRegression(random_state=42, max_iter=1000, solver="liblinear")),
+            ("classifier", LogisticRegression(random_state=42, max_iter=1000, solver="liblinear", class_weight="balanced" )),
         ]
     )
 
