@@ -7,6 +7,9 @@
 # dopiero w Sprincie 2 (requirements/preflight-s3.txt + constraints.txt).
 # Zestaw zostanie ostatecznie zamrożony po teście technicznym:
 #   python scripts/check_env.py --autogluon
+# dodać kolejną linijke do dependencies dla użytkowników windows aby generowaly sie wykresy i trenowal model
+# -libblas=*=*openblas
+
 name: asi-ml
 channels:
   - conda-forge
