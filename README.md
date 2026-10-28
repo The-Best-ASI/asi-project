@@ -14,17 +14,17 @@ powiązane, ale nie zawierają gotowych rozwiązań ani zadań do wykonania wcze
 <!-- KARTA-PROJEKTU:START -->
 ## Karta projektu (wypełnia zespół w Sprincie 1)
 
-| Pole | Wartość |
-|---|---|
-| Zespół i integrator Sprintu 1 | TODO |
-| Dataset (id z `docs/datasets.md`) | `bank_loan_status` |
-| Źródło, licencja i cytowanie (DOI) | Kaggle, „Bank Loan Status Dataset”, Zaur Begiev (2017), https://www.kaggle.com/datasets/zaurbegiev/my-dataset; licencja „Unknown”; brak DOI |
-| Data pobrania danych | 2026-10-24 |
-| SHA-256 pliku danych (`fingerprint.json`) | `40b2f45ba4bacebb641bdcb0db290cd66c54fbeb334514ee9ba93f6825494894` (`credit_train.csv`) |
-| Dane osobowe w zbiorze i sposób postępowania | TODO |
-| Target i klasa pozytywna | `Loan Status`, klasa pozytywna `Charged Off` (kredyt niespłacony) |
+| Pole | Wartość                                                                                                                                                                                                                               |
+|---|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Zespół i integrator Sprintu 1 | Frank Schweizer, Piotr Sokołowski, Jakub Baliński, Tomasz Nehring                                                                                                                                                                     |
+| Dataset (id z `docs/datasets.md`) | `bank_loan_status`                                                                                                                                                                                                                    |
+| Źródło, licencja i cytowanie (DOI) | Kaggle, „Bank Loan Status Dataset”, Zaur Begiev (2017), https://www.kaggle.com/datasets/zaurbegiev/my-dataset; licencja „Unknown”; brak DOI                                                                                           |
+| Data pobrania danych | 2026-10-24                                                                                                                                                                                                                            |
+| SHA-256 pliku danych (`fingerprint.json`) | `40b2f45ba4bacebb641bdcb0db290cd66c54fbeb334514ee9ba93f6825494894` (`credit_train.csv`)                                                                                                                                               |
+| Dane osobowe w zbiorze i sposób postępowania | brak danych osobowych w zbiorze, zbiór opiera się na anonimowych ID klienta                                                                                                                                                           |
+| Target i klasa pozytywna | `Loan Status`, klasa pozytywna `Charged Off` (kredyt niespłacony)                                                                                                                                                                     |
 | Metryka główna i uzasadnienie | Recall klasy `Charged Off`: przeoczony niespłacony kredyt (FN) kosztuje bank więcej niż dodatkowa weryfikacja dobrego klienta (FP); accuracy odpada, bo przy 27,6% klasy pozytywnej DummyClassifier osiąga ~0,72, nic nie wykrywając.
-| Użytkownik systemu i decyzja, którą wspiera model | TODO |
+| Użytkownik systemu i decyzja, którą wspiera model | Analityk ryzyka kredytowego oraz zautomatyzowany system bankowy. Model wspiera decyzję o akceptacji lub odrzuceniu wniosku o udzielenie pożyczki                                                                                      |
 <!-- KARTA-PROJEKTU:END -->
 
 ## Mapa projektu

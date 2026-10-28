@@ -48,10 +48,73 @@ gotowy — sprawdza to `python scripts/check_dod.py`.
 <!-- DIAGRAM-V0:START -->
 ```mermaid
 flowchart LR
-    data["TODO: źródło danych"] --> model["TODO: kolejne elementy systemu"]
+    %% SEKCJA: SPRINT 1
+    subgraph S_SPRINT1 [Gotowe w Sprincie 1: Trening i Eksperyment]
+        DD("Dane (Kaggle)") --> contract("Kontrakt Danych")
+        contract --> EDA("EDA")
+
+        subgraph S_BASELINE [BASELINE]
+            NI("Normalizing Input") --> FTR("Filter_Training_Rows")
+            FTR --> SPLIT("Split<br/>ALLOWED_FEATURES")
+
+            subgraph Numeric [Numeric]
+                IMP_MED("Imputer mediana") --> SS("Standard Scaler")
+            end
+
+            subgraph Categorical [Categorical]
+                IMP_MF("Imputer most-frequent") --> OHE("One Hot Encoder")
+            end
+
+            SPLIT --> IMP_MED
+            SPLIT --> IMP_MF
+        end
+
+        EDA --> NI
+
+        subgraph S_MODEL [MODEL]
+            LR("Logistic<br/>Regression")
+        end
+
+        SS --> LR
+        OHE --> LR
+
+        subgraph S_RESULT [RESULT]
+            METRICS("Metrics & Artefakt Modelu")
+        end
+
+        LR --> METRICS
+    end
+
+    %%SEKCJA: PLANOWANE, PRZYSZŁE KROKI
+    subgraph S_PLANNED [Planowane w S2-S6: Serwowanie i Stan]
+        UI(("UI (Interfejs)"))
+        API{"API (Usługa)"}
+        DB[("Baza Danych (Stan)")]
+    end
+
+
+    METRICS -. "Wczytanie wytrenowanego modelu" .-> API
+    UI -- "Żądanie predykcji" --> API
+    API -- "Wynik predykcji" --> UI
+    API -- "Zapis historii" --> DB
+
+    %%STYLOWANIE
+    style S_BASELINE fill:#fed7aa,stroke:#ea580c,stroke-width:3px,color:#000
+    style S_MODEL fill:#ddd6fe,stroke:#7c3aed,stroke-width:3px,color:#000
+    style S_RESULT fill:#bbf7d0,stroke:#16a34a,stroke-width:3px,color:#000
+
+    style Numeric fill:none,stroke:#333,stroke-dasharray: 5 5,stroke-width:2px,color:#000
+    style Categorical fill:none,stroke:#333,stroke-dasharray: 5 5,stroke-width:2px,color:#000
+
+
+    style S_SPRINT1 fill:none,stroke:#16a34a,stroke-width:3px,stroke-dasharray: 5 5
+    style S_PLANNED fill:none,stroke:#7c3aed,stroke-width:3px,stroke-dasharray: 5 5
 ```
 
-TODO: krótki opis diagramu (3–5 zdań).
+Powyższy diagram v0 przedstawia docelowy system wspierający decyzje kredytowe. Obecnie gotowy jest potok treningowy, w
+którym dane z Kaggle przechodzą weryfikację kontraktu, wczesną normalizację, filtrowanie i docelowy preprocessing wewnątrz modelu
+W kolejnych sprintach planowane jest dodanie środowiska produkcyjnego, w którym zapisany artefakt modelu zostanie wczytany do API.
+Interfejs będzie komunikować się z API, a predykcje będą zapisywane w bazie danych
 <!-- DIAGRAM-V0:END -->
 
 ## Historia zmian architektury
