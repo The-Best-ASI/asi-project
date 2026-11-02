@@ -20,6 +20,7 @@ def validate_raw_data(raw_data: pd.DataFrame) -> pd.DataFrame:
     assert_valid(data, get_contract(config), config)
     return data
 
+
 def normalize_data(validated_data: pd.DataFrame) -> pd.DataFrame:
     """Input normalization — wspólna dla treningu i API."""
     return normalize_input(validated_data)
