@@ -1,0 +1,11 @@
+# Nadpisania dla `kedro run --env ci`: te same pipeline'y na próbce z gita.
+
+raw_data:
+  type: pandas.CSVDataset
+  filepath: data/01_raw/sample.csv
+
+intermediate_data:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/intermediate_data_ci.csv
+  save_args:
+    index: false
