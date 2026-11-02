@@ -182,3 +182,30 @@ z tych elementów.
 Ogólną architekturę warstw opisuje [`docs/architecture.md`](docs/architecture.md).
 Przypięte instalacje kolejnych sprintów: `requirements/preflight-s2.txt` (Kedro, pod koniec S1)
 i `requirements/preflight-s3.txt` (W&B i AutoGluon, pod koniec S2).
+
+
+## Kedro quickstart
+
+### 1. Pobranie danych
+Pełny zbiór danych należy pobrać i umieścić lokalnie w katalogu `data/01_raw/`. Próbka testowa dla środowiska CI znajduje
+się już w repozytorium pod ścieżką `data/01_raw/sample.csv`.
+
+### 2. Przygotowanie środowiska
+Upewnij się, że masz aktywowane środowisko Condy i zainstalowane zależności:
+```bash
+python -m pip install -r requirements/preflight-s2.txt -c constraints.txt
+```
+### 3. Uruchomienie pipeline'u
+Aby uruchomić pełny proces (walidacja, normalizacja, split, trening i ewaluacja) na pełnych danych:
+```bash
+kedro run
+```
+Aby uruchomić pipeline w trybie testowym na małej próbce danych (konfiguracja środowiska CI):
+```bash
+kedro run --env ci
+```
+
+### 4. Gdzie znaleźć wyniki
+Po pomyślnym wykonaniu komendy kedro run generowane są następujące pliki:
+ - Wytrenowany model: w katalogu `data/06_models/`
+ - Metryki ewaluacyjne: plik `metrics.json`
