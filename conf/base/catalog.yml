@@ -1,0 +1,14 @@
+# Data Catalog — wejścia i wyjścia pipeline'ów. Ścieżki względem katalogu głównego repo.
+# Dane spoza katalogu (validated_data, normalized_data) Kedro trzyma tylko w pamięci.
+
+# Pełne dane (poza gitem): python scripts/download_data.py
+raw_data:
+  type: pandas.CSVDataset
+  filepath: data/01_raw/bank_loan_status/credit_train.csv
+
+# Wyjście data_processing: po input normalization i training-only filtering.
+intermediate_data:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/intermediate_data.csv
+  save_args:
+    index: false
