@@ -6,6 +6,7 @@ które zostały dopasowane na X_train, a cały model można zapisać jako jeden 
 """
 
 from collections.abc import Sequence
+from typing import Any
 
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
@@ -23,6 +24,7 @@ def make_dummy() -> DummyClassifier:
 def build_baseline_pipeline(
     numeric_features: Sequence[str],
     categorical_features: Sequence[str],
+    model_params: dict[str, Any] | None = None,
 ) -> Pipeline:
     """TODO (S1): Pipeline = model preprocessing (ColumnTransformer) + LogisticRegression.
 
@@ -35,6 +37,12 @@ def build_baseline_pipeline(
 
     Wzorzec znasz z drugich zajęć (notebook 02 onboardingu).
     """
+    params = model_params or {
+        "random_state": 42,
+        "max_iter": 1000,
+        "solver": "liblinear",
+        "class_weight": "balanced",
+    }
 
     numeric_pipeline = Pipeline(
         steps=[
@@ -58,12 +66,7 @@ def build_baseline_pipeline(
     model = Pipeline(
         steps=[
             ("preprocessor", preprocessor),
-            (
-                "classifier",
-                LogisticRegression(
-                    random_state=42, max_iter=1000, solver="liblinear", class_weight="balanced"
-                ),
-            ),
+            ("classifier", LogisticRegression(**params)),
         ]
     )
 
