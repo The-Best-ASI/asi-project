@@ -2,6 +2,7 @@
 dataset_id: "bank_loan_status"
 target: "Loan Status"
 positive_class: "Charged Off"
+
 data_mode: "full"
 
 # Parametry splitu
