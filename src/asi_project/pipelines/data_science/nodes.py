@@ -54,7 +54,6 @@ def evaluate_model(
     data_mode: str,
     split_params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Ocenia DummyClassifier i wytrenowany model oraz zwraca zwalidowany rekord metryk."""
     config = load_project_config()
     if split_params is not None:
         config = replace(
