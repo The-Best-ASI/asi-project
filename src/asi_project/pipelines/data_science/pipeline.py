@@ -20,7 +20,15 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             Node(
                 func=evaluate_model,
-                inputs=["model", "X_train", "y_train", "X_test", "y_test", "params:data_mode"],
+                inputs=[
+                    "model",
+                    "X_train",
+                    "y_train",
+                    "X_test",
+                    "y_test",
+                    "params:data_mode",
+                    "params:split",
+                ],
                 outputs="metrics",
                 name="evaluate_model",
             ),

@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import Any
 
 import pandas as pd
@@ -51,8 +52,16 @@ def evaluate_model(
     X_test: pd.DataFrame,
     y_test: pd.Series,
     data_mode: str,
+    split_params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Ocenia DummyClassifier i wytrenowany model oraz zwraca zwalidowany rekord metryk."""
     config = load_project_config()
+    if split_params is not None:
+        config = replace(
+            config,
+            test_size=float(split_params["test_size"]),
+            random_state=int(split_params["random_state"]),
+        )
     contract = get_contract(config)
 
     dummy = make_dummy()
