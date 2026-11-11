@@ -2,6 +2,12 @@ raw_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/sample.csv
 
+intermediate_data:
+  type: pandas.CSVDataset
+  filepath: data/02_intermediate/intermediate_ci.csv
+  save_args:
+    index: false
+
 model:
   type: pickle.PickleDataset
   filepath: data/06_models/model_ci.pkl

@@ -1,21 +1,17 @@
-# 1. Surowe dane wejściowe
 raw_data:
   type: pandas.CSVDataset
   filepath: data/01_raw/bank_loan_status/credit_train.csv
 
-# 2. Dane po walidacji, normalizacji i filtrowaniu
-# TODO Sprawdzić ścieżkę po implementacji
-processed_data:
+intermediate_data:
   type: pandas.CSVDataset
-  filepath: data/02_intermediate/processed_data.csv
+  filepath: data/02_intermediate/intermediate.csv
+  save_args:
+    index: false
 
-# 3. Wytrenowany model sklearn Pipeline
-# TODO Sprawdzić ścieżkę po implementacji
 model:
   type: pickle.PickleDataset
   filepath: data/06_models/model.pkl
 
-# 4. Metryki ewaluacyjne
 metrics:
   type: json.JSONDataset
   filepath: data/08_reporting/metrics.json

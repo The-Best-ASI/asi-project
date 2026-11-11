@@ -35,8 +35,9 @@ known-first-party = ["asi_project"]
 
 [tool.kedro]
 package_name = "asi_project"
-project_name = "asi-project"
+project_name = "asi_project"
 kedro_init_version = "1.7.0"
+source_dir = "src"
 
 [tool.kedro_telemetry]
-project_id = "9f12663418954efda79576c1377c0c29"
+project_id = "4899fa18182043ca9ff9abca8cfb19c0"
