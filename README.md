@@ -208,4 +208,4 @@ kedro run --env ci
 ### 4. Gdzie znaleźć wyniki
 Po pomyślnym wykonaniu komendy kedro run generowane są następujące pliki:
  - Wytrenowany model: w katalogu `data/06_models/`
- - Metryki ewaluacyjne: plik `metrics.json`
+ - Metryki ewaluacyjne: plik `data/08_reporting/metrics.json`
