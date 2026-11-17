@@ -1,6 +1,6 @@
 from kedro.pipeline import Node, Pipeline
 
-from .nodes import evaluate_model, split_data, train_model
+from .nodes import evaluate_model, run_autogluon, split_data, train_model
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -31,6 +31,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 ],
                 outputs="metrics",
                 name="evaluate_model",
+            ),
+            Node(
+                func=run_autogluon,
+                inputs=["X_train", "y_train", "X_test", "y_test", "params:autogluon"],
+                outputs="autogluon_report",
+                name="autogluon_node",
             ),
         ]
     )
