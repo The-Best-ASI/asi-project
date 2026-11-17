@@ -38,3 +38,24 @@ model_params:
   max_iter: 1000
   solver: "liblinear"
   class_weight: "balanced"
+
+
+autogluon:
+  enabled: true
+  target_column: "Loan Status"
+  positive_class: "Charged Off"
+  eval_metric: "recall"
+  save_path: "data/06_models/autogluon_ci"
+  configs:
+    - name: "ag_fast_medium"
+      presets: "medium_quality"
+      time_limit: 60
+      optimize_for_deployment: false
+    - name: "ag_strong_deployment"
+      presets: "good_quality"
+      time_limit: 180
+      optimize_for_deployment: true
+    - name: "ag_ci_smoke"
+      presets: "medium_quality"
+      time_limit: 10
+      optimize_for_deployment: false

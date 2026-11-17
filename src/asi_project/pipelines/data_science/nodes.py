@@ -1,7 +1,12 @@
+import os
+import time
 from dataclasses import replace
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import psutil
+from autogluon.tabular import TabularPredictor
 from sklearn.pipeline import Pipeline
 
 from asi_project.config import get_contract, load_project_config
@@ -87,3 +92,81 @@ def evaluate_model(
     if problems:
         raise ValueError("Metryki nie spełniają kontraktu:\n" + "\n".join(problems))
     return record
+
+
+def get_dir_size(path):
+    if not path.exists():
+        return 0.0
+    total_bytes = 0
+    for file in path.rglob("*"):
+        if file.is_file():
+            total_bytes += file.stat().st_size
+
+    total_mb = total_bytes / (1024 * 1024)
+    return round(total_mb, 2)
+
+
+def measure_memory_load(model_path):
+    process = psutil.Process(os.getpid())
+
+    ram_before = process.memory_info().rss
+    _ = TabularPredictor.load(str(model_path))
+    ram_after = process.memory_info().rss
+    diff_mb = (ram_after - ram_before) / (1024 * 1024)
+
+    return round(max(0.0, diff_mb), 2)
+
+
+def run_autogluon(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    ag_params: dict[str, Any],
+) -> dict[str, Any]:
+
+    if not ag_params.get("enabled", True):
+        return {}
+
+    target = y_train.name or "target"
+    train_data = X_train.assign(**{target: y_train})
+
+    results = {}
+
+    for cfg in ag_params["configs"]:
+        name = cfg["name"]
+        model_path = Path(ag_params["save_path"]) / name
+
+        presets = [cfg["presets"]]
+        if cfg.get("optimize_for_deployment", False):
+            presets.append("optimize_for_deployment")
+
+        predictor = TabularPredictor(
+            label=target,
+            eval_metric=ag_params["eval_metric"],
+            path=str(model_path),
+        ).fit(
+            train_data=train_data,
+            presets=presets,
+            time_limit=cfg["time_limit"],
+        )
+
+        t0 = time.perf_counter()
+        y_pred = predictor.predict(X_test)
+        pred_time = time.perf_counter() - t0
+
+        artifact_size = get_dir_size(model_path)
+        del predictor
+        load_memory = measure_memory_load(model_path)
+
+        ml_metrics = compute_metrics(y_test, y_pred)
+        results[name] = {
+            "ml_metrics": ml_metrics,
+            "system_metrics": {
+                "prediction_time_seconds": round(pred_time, 4),
+                "artifact_size": artifact_size,
+                "load_memory": load_memory,
+            },
+        }
+
+    return results
