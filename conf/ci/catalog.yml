@@ -21,3 +21,11 @@ metrics:
   filepath: data/08_reporting/metrics_ci.json
   save_args:
     indent: 2
+
+autogluon_report:
+  type: json.JSONDataset
+  filepath: data/08_reporting/autogluon_report_ci.json
+
+baseline_system_metrics:
+  type: json.JSONDataset
+  filepath: data/08_reporting/baseline_system_metrics_ci.json
