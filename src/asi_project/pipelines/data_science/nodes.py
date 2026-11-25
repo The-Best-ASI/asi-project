@@ -166,6 +166,7 @@ def run_autogluon(
             train_data=train_data,
             presets=presets,
             time_limit=cfg["time_limit"],
+            dynamic_stacking=cfg.get("dynamic_stacking", "auto"),
         )
 
         y_pred, prediction_time = timed(lambda p=predictor: p.predict(X_test))

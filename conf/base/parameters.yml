@@ -60,3 +60,4 @@ autogluon:
       presets: "good_quality"
       time_limit: 180
       optimize_for_deployment: true
+      dynamic_stacking: false
