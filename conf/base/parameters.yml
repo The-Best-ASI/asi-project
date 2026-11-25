@@ -38,3 +38,9 @@ model_params:
   max_iter: 1000
   solver: "liblinear"
   class_weight: "balanced"
+
+wandb:
+  enabled: true
+  project: "wb-baseline"
+  entity: "the-best-asi"
+  baseline_run_name: "baseline-logreg"

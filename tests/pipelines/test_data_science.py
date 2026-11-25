@@ -22,7 +22,7 @@ def test_create_pipeline_structure():
     pipeline = create_pipeline()
     node_names = [node.name for node in pipeline.nodes]
 
-    assert node_names == ["split_data", "train_model", "evaluate_model"]
+    assert node_names == ["split_data", "train_model", "evaluate_model", "log_baseline_wandb"]
     assert "intermediate_data" in pipeline.inputs()
     assert {"model", "metrics"} <= pipeline.all_outputs()
 

@@ -12,6 +12,7 @@ from asi_project.metrics import (
     validate_metrics_record,
 )
 from asi_project.model import build_baseline_pipeline, make_dummy
+from asi_project.tracking import log_baseline_run
 
 
 def split_data(
@@ -87,3 +88,12 @@ def evaluate_model(
     if problems:
         raise ValueError("Metryki nie spełniają kontraktu:\n" + "\n".join(problems))
     return record
+
+
+def log_baseline_wandb(
+    metrics: dict[str, Any],
+    model_params: dict[str, Any],
+    split_params: dict[str, Any],
+    wandb_params: dict[str, Any],
+) -> str:
+    return log_baseline_run(metrics, model_params, split_params, wandb_params)
