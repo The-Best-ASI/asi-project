@@ -1,6 +1,9 @@
+import tempfile
 from dataclasses import replace
+from pathlib import Path
 from typing import Any
 
+import joblib
 import pandas as pd
 from sklearn.pipeline import Pipeline
 
@@ -12,7 +15,10 @@ from asi_project.metrics import (
     validate_metrics_record,
 )
 from asi_project.model import build_baseline_pipeline, make_dummy
-from asi_project.tracking import log_baseline_run
+from asi_project.system_metrics import system_metrics, timed
+from asi_project.tracking import build_run_config, build_run_metrics, log_run
+
+BASELINE_MODEL = "logistic_regression"
 
 
 def split_data(
@@ -90,10 +96,107 @@ def evaluate_model(
     return record
 
 
+def measure_baseline(model: Pipeline, X_test: pd.DataFrame) -> dict[str, float]:
+    _, prediction_time = timed(lambda: model.predict(X_test))
+    with tempfile.TemporaryDirectory() as tmp:
+        model_path = Path(tmp) / "model"
+        joblib.dump(model, model_path)
+        return system_metrics(prediction_time, model_path, kind="sklearn")
+
+
 def log_baseline_wandb(
     metrics: dict[str, Any],
+    baseline_system_metrics: dict[str, float],
     model_params: dict[str, Any],
-    split_params: dict[str, Any],
     wandb_params: dict[str, Any],
 ) -> str:
-    return log_baseline_run(metrics, model_params, split_params, wandb_params)
+    models = metrics["models"]
+    return log_run(
+        wandb_params=wandb_params,
+        name=wandb_params.get("baseline_run_name", "baseline-logreg"),
+        job_type="baseline",
+        run_config=build_run_config(
+            model_type=BASELINE_MODEL,
+            model_params=model_params,
+            data_mode=metrics["data_mode"],
+            split=metrics["split"],
+            features=metrics["features"],
+        ),
+        run_metrics=build_run_metrics(
+            models[BASELINE_MODEL],
+            system_metrics=baseline_system_metrics,
+            reference_metrics={"dummy": models["dummy"]},
+        ),
+    )
+
+
+def run_autogluon(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    ag_params: dict[str, Any],
+    data_mode: str,
+    split_params: dict[str, Any],
+    wandb_params: dict[str, Any],
+) -> dict[str, Any]:
+    if not ag_params.get("enabled", True):
+        return {}
+
+    from autogluon.tabular import TabularPredictor
+
+    target = y_train.name or "target"
+    train_data = X_train.assign(**{target: y_train})
+    split = {**split_params, "n_train": len(X_train), "n_test": len(X_test)}
+
+    results = {}
+    for cfg in ag_params["configs"]:
+        name = cfg["name"]
+        model_path = Path(ag_params["save_path"]) / name
+
+        presets = [cfg["presets"]]
+        if cfg.get("optimize_for_deployment", False):
+            presets.append("optimize_for_deployment")
+
+        predictor = TabularPredictor(
+            label=target,
+            eval_metric=ag_params["eval_metric"],
+            path=str(model_path),
+        ).fit(
+            train_data=train_data,
+            presets=presets,
+            time_limit=cfg["time_limit"],
+        )
+
+        y_pred, prediction_time = timed(lambda p=predictor: p.predict(X_test))
+        best_model = predictor.model_best
+        del predictor
+
+        ml_metrics = compute_metrics(y_test, y_pred)
+        sys_metrics = system_metrics(prediction_time, model_path, kind="autogluon")
+        run_id = log_run(
+            wandb_params=wandb_params,
+            name=name,
+            job_type="autogluon",
+            run_config=build_run_config(
+                model_type="autogluon",
+                model_params={
+                    **cfg,
+                    "presets": presets,
+                    "eval_metric": ag_params["eval_metric"],
+                    "best_model": best_model,
+                },
+                data_mode=data_mode,
+                split=split,
+                features=list(X_train.columns),
+            ),
+            run_metrics=build_run_metrics(ml_metrics, system_metrics=sys_metrics),
+        )
+        results[name] = {
+            "ml_metrics": ml_metrics,
+            "system_metrics": sys_metrics,
+            "best_model": best_model,
+            "wandb_run_id": run_id,
+        }
+
+    return results

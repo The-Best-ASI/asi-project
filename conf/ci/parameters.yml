@@ -3,3 +3,6 @@ data_mode: "sample"
 
 wandb:
   enabled: false
+
+autogluon:
+  enabled: false
